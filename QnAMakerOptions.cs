@@ -1,6 +1,7 @@
 
 
-namespace Itminus.Azure.QnA{
+namespace Itminus.Azure.QnA
+{
     /// <summary>
     /// Defines options for the QnA Maker knowledge base.
     /// </summary>

@@ -3,8 +3,8 @@
 using System;
 using Newtonsoft.Json;
 
-namespace Itminus.Azure.QnA{
-
+namespace Itminus.Azure.QnA
+{
     [Serializable]
     public class Metadata
     {

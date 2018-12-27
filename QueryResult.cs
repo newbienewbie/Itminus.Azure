@@ -1,8 +1,9 @@
 
 using Newtonsoft.Json;
 
-namespace Itminus.Azure.QnA{
-   public class QueryResult
+namespace Itminus.Azure.QnA
+{
+    public class QueryResult
     {
         /// <summary>
         /// Gets or sets the list of questions indexed in the QnA Service for the given answer.
@@ -64,7 +65,7 @@ namespace Itminus.Azure.QnA{
     }
 
 
-        /// <summary>
+    /// <summary>
     /// Contains answers for a user query.
     /// </summary>
     public class QueryResults
