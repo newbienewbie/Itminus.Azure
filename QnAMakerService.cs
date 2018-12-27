@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -24,8 +25,9 @@ namespace Itminus.Azure.QnA
         public string Path {get; private set;}
         public HttpMethod Method {get; private set;} = HttpMethod.Post;
 
-        private HttpRequestMessage BuildRequestMessage(string question, QnAMakerOptions opts=null){
-            var qnaOpts= opts??this.QnAMakerOptions;
+        private HttpRequestMessage BuildGetAnswerRequestMessage(string question, QnAMakerOptions opts){
+            if(opts==null){ throw new ArgumentNullException($"{nameof(opts)} must not be null!");}
+            this.ValidateOptions(opts);
             var req = new HttpRequestMessage();
             req.Method = this.Method;
             req.RequestUri = new Uri(this.Host+ this.Path);
@@ -34,9 +36,9 @@ namespace Itminus.Azure.QnA
             var jsonRequest = JsonConvert.SerializeObject(
                 new {
                     question = question,
-                    top = qnaOpts.Top,
-                    strictFilters = qnaOpts.StrictFilters,
-                    metadataBoost = qnaOpts.MetadataBoost,
+                    top = opts.Top,
+                    strictFilters = opts.StrictFilters,
+                    metadataBoost = opts.MetadataBoost,
                 }, 
                 Formatting.None
             );
@@ -44,15 +46,16 @@ namespace Itminus.Azure.QnA
             return req;
         }
 
-        public async Task<QueryResults> GetAnswer(string question, QnAMakerOptions opts=null){
-            var req = this.BuildRequestMessage(question,opts);
+        public async Task<QueryResult[]> GetAnswer(string question, QnAMakerOptions opts=null){
+            var qnaOpts= opts??this.QnAMakerOptions;
+            var req = this.BuildGetAnswerRequestMessage(question,qnaOpts);
             var resp = await this.Client.SendAsync(req);
             if (!resp.IsSuccessStatusCode){
                 return null;
             }
             var jsonResp = await resp.Content.ReadAsStringAsync();
             var results = JsonConvert.DeserializeObject<QueryResults>(jsonResp);
-            return results;
+            return results.Answers.Where(a => a.Score > qnaOpts.ScoreThreshold).ToArray();
         }
 
 
