@@ -1,2 +1,4 @@
 bin/
 obj/
+.vs/
+azure.test.config.json
