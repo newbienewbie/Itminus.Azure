@@ -36,7 +36,7 @@ namespace Itminus.Azure.Speech.Test
         }
 
         [Fact]
-        public void TestSpeechService()
+        public void TestText2SpeechService()
         {
             var speechService = new Itminus.Azure.Speech.SpeechServiceBuilder()
                 .SetRegion(this.Region)
@@ -51,5 +51,6 @@ namespace Itminus.Azure.Speech.Test
             Assert.True(File.Exists(saveAs));
             File.Delete(saveAs);
         }
+
     }
 }

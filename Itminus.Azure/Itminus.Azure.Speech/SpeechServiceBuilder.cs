@@ -14,9 +14,11 @@ namespace Itminus.Azure.Speech{
         public SpeechOptions SpeechOptions { get; private set; }
         public string Region { get; private set; }
 
-        public string SpeechServicePath {get{ return $"https://{this.Region}.tts.speech.microsoft.com/cognitiveservices/v1"; } }
-
+        public string TextToSpeechServicePath {get{ return $"https://{this.Region}.tts.speech.microsoft.com/cognitiveservices/v1"; } }
+        public string SpeechToTextServicePath {get{ return $"https://{this.Region}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1"; } }
         public string AccessTokenPath { get{ return $"https://{this.Region}.api.cognitive.microsoft.com/sts/v1.0/issueToken"; } }
+
+        public string ResourName { get; private set; }
 
         public SpeechServiceBuilder SetRegion(string region)
         {
@@ -31,6 +33,10 @@ namespace Itminus.Azure.Speech{
             return this;
         }
 
+        public SpeechServiceBuilder SetResourceName(string resourceName){
+            this.SubScriptionKey = resourceName?? throw new ArgumentNullException($"string {nameof(resourceName)} must not be null !");
+            return this;
+        }
 
         /// <summary>
         /// Nullable client
@@ -56,11 +62,14 @@ namespace Itminus.Azure.Speech{
             Type t = o.GetType();
             var region=t.GetProperty("Region")?.GetValue(o) as string;
             var key=t.GetProperty("Key")?.GetValue(o) as string;
+            var resourceName= t.GetProperty("ResourceName").GetValue(o) as string;
             var client = t.GetProperty("Client").GetValue(o) as HttpClient;
             var opts = t.GetProperty("SpeechOptions").GetValue(o) as SpeechOptions;
+
             return this
                 .SetRegion(region)
                 .SetSubScriptionKey(key)
+                .SetResourceName(resourceName)
                 .SetClient(client)
                 .SetSpeechOptions(opts);
         }
@@ -73,7 +82,7 @@ namespace Itminus.Azure.Speech{
 
         public SpeechService Build(){
             var tokenAccessor = this.BuildSpeechTokenAccessor();
-            return new SpeechService(this.SpeechServicePath,tokenAccessor,this.SpeechOptions,this.Client);
+            return new SpeechService(this.TextToSpeechServicePath,this.SpeechToTextServicePath,tokenAccessor,this.ResourName,this.SpeechOptions,this.Client);
         }
     }
 
