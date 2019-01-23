@@ -44,6 +44,8 @@ namespace Itminus.Azure.Speech
             return req;
         }
 
+
+
         public async Task<Stream> FetchSpeechAsync(string text,string voiceName="Microsoft Server Speech Text to Speech Voice (en-US, ZiraRUS)"){
             var req = this.BuildTextToSpeechMessage(text,voiceName);
             var resp = await this.Client.SendAsync(req);
@@ -54,6 +56,38 @@ namespace Itminus.Azure.Speech
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="contentType"> "audio/wav; codecs=audio/pcm; samplerate=16000" or "audio/ogg; codecs=opus" </param>
+        /// <param name="language">""</param>
+        /// <returns></returns>
+        private HttpRequestMessage BuildSpeechToTextMessage(Stream stream,string contentType,string language){
+            var req = new HttpRequestMessage();
+            req.Method = this.Method;
+            req.RequestUri = new Uri($"{this.SpeechToTextPath}?language={language}");
+            req.Headers.Add("Authorization", $"Bearer {this.TokenAccessor.Token}");
+            req.Headers.Add("Connection", "Keep-Alive");
+            req.Headers.Add("Transfer-Encoding","chunked");
+            req.Headers.Add("Accept","application/json");
+
+            var streamContent=new StreamContent(stream);
+            streamContent.Headers.TryAddWithoutValidation("Content-Type",contentType);
+            req.Content = streamContent;
+            return req;
+        }
+
+
+        public async Task<Stream> FetchTextAsStreamResultAsync(Stream stream,string contentType,string language){
+            var req = this.BuildSpeechToTextMessage(stream,contentType,language);
+            var resp = await this.Client.SendAsync(req);
+            if (!resp.IsSuccessStatusCode){
+                var tips= await resp.Content.ReadAsStringAsync();
+                return null;
+            }
+            return await resp.Content.ReadAsStreamAsync();
+        }
 
     }
 }
