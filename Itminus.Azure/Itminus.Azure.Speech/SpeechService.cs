@@ -39,7 +39,7 @@ namespace Itminus.Azure.Speech
             // required !
             req.Headers.Add("User-Agent", this.ResourceName);
             req.Headers.Add("X-Microsoft-OutputFormat", "riff-24khz-16bit-mono-pcm");
-            var body = $"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'><voice name='{voiceName}'>${text}</voice></speak>";
+            var body = $"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'><voice name='{voiceName}'>{text}</voice></speak>";
             req.Content = new StringContent(body, System.Text.Encoding.UTF8, "application/ssml+xml");
             return req;
         }
