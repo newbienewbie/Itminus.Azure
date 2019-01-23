@@ -4,6 +4,9 @@ using Itminus.Azure.Speech;
 using System.IO;
 using Xunit.Abstractions;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
 
 namespace Itminus.Azure.Speech.Test
 {
@@ -36,13 +39,13 @@ namespace Itminus.Azure.Speech.Test
         }
 
         [Fact]
-        public void TestText2SpeechService()
+        public async Task TestText2SpeechService()
         {
             var speechService = new Itminus.Azure.Speech.SpeechServiceBuilder()
                 .SetRegion(this.Region)
                 .SetSubScriptionKey(this.Key)
                 .Build();
-            var stream = speechService.FetchSpeechAsync("hello,world").Result;
+            var stream =await speechService.FetchSpeechAsync("hello,world");
             Assert.NotNull(stream);
             var saveAs = Path.Combine(Directory.GetCurrentDirectory(),@"test-text-to-speech.wav");
             using (var fs = File.OpenWrite(saveAs)) {
@@ -52,5 +55,27 @@ namespace Itminus.Azure.Speech.Test
             File.Delete(saveAs);
         }
 
+
+        [Theory]
+        [InlineData("en-US", "Microsoft Server Speech Text to Speech Voice (en-US, ZiraRUS)", "It works")]
+        [InlineData("zh-CN", "Microsoft Server Speech Text to Speech Voice (zh-CN, Yaoyao, Apollo)", "学习雷锋好榜样")]
+        [InlineData("zh-CN", "Microsoft Server Speech Text to Speech Voice (zh-CN, HuihuiRUS)", "忠于人民忠于党")]
+        public async Task TestSpeech2TextService(string lang,string voiceName, string text)
+        {
+            var speechService = new SpeechServiceBuilder()
+                .SetRegion(this.Region)
+                .SetSubScriptionKey(this.Key)
+                .Build();
+
+            var inputStream = await speechService.FetchSpeechAsync(text,voiceName);
+            var contentType = "audio/wav; codecs=audio/pcm; samplerate=16000";
+            var outStream =await speechService.FetchTextAsStreamResultAsync(inputStream,contentType,lang);
+            Assert.NotNull(outStream);
+            using (var reader = new JsonTextReader(new StreamReader(outStream))) {
+                var o = (JObject) JToken.ReadFrom(reader);
+                Assert.Equal("Success", o["RecognitionStatus"].Value<string>());
+                Assert.Contains(text,o["DisplayText"].Value<string>());
+            } 
+        }
     }
 }
