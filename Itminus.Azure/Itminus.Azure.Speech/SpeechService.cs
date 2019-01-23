@@ -29,7 +29,7 @@ namespace Itminus.Azure.Speech
         public string ResourceName { get; private set;}
         public HttpMethod Method {get; private set;} = HttpMethod.Post;
 
-        private HttpRequestMessage BuildTextToSpeechMessage(string text){
+        private HttpRequestMessage BuildTextToSpeechMessage(string text,string voiceName){
             var req = new HttpRequestMessage();
             req.Method = this.Method;
             req.RequestUri = new Uri(this.TextToServicePath);
@@ -39,14 +39,13 @@ namespace Itminus.Azure.Speech
             // required !
             req.Headers.Add("User-Agent", this.ResourceName);
             req.Headers.Add("X-Microsoft-OutputFormat", "riff-24khz-16bit-mono-pcm");
-            var body = @"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>
-              <voice name='Microsoft Server Speech Text to Speech Voice (en-US, ZiraRUS)'>" + text + "</voice></speak>";
+            var body = $"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'><voice name='{voiceName}'>${text}</voice></speak>";
             req.Content = new StringContent(body, System.Text.Encoding.UTF8, "application/ssml+xml");
             return req;
         }
 
-        public async Task<Stream> FetchSpeechAsync(string text){
-            var req = this.BuildTextToSpeechMessage(text);
+        public async Task<Stream> FetchSpeechAsync(string text,string voiceName="Microsoft Server Speech Text to Speech Voice (en-US, ZiraRUS)"){
+            var req = this.BuildTextToSpeechMessage(text,voiceName);
             var resp = await this.Client.SendAsync(req);
             if (!resp.IsSuccessStatusCode){
                 return null;
