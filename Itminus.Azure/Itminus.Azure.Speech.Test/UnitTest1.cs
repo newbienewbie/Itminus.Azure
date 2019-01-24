@@ -58,8 +58,8 @@ namespace Itminus.Azure.Speech.Test
 
         [Theory]
         [InlineData("en-US", "Microsoft Server Speech Text to Speech Voice (en-US, ZiraRUS)", "It works")]
-        [InlineData("zh-CN", "Microsoft Server Speech Text to Speech Voice (zh-CN, Yaoyao, Apollo)", "Ñ§Ï°À×·æºÃ°ñÑù")]
-        [InlineData("zh-CN", "Microsoft Server Speech Text to Speech Voice (zh-CN, HuihuiRUS)", "ÖÒÓÚÈËÃñÖÒÓÚµ³")]
+        [InlineData("zh-CN", "Microsoft Server Speech Text to Speech Voice (zh-CN, Yaoyao, Apollo)", "å­¦ä¹ é›·é”‹å¥½æ¦œæ ·")]
+        [InlineData("zh-CN", "Microsoft Server Speech Text to Speech Voice (zh-CN, HuihuiRUS)", "å¿ äºŽäººæ°‘å¿ äºŽå…š")]
         public async Task TestSpeech2TextService(string lang,string voiceName, string text)
         {
             var speechService = new SpeechServiceBuilder()
